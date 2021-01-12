@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  11 JAN 2021 16:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  12 JAN 2021 10:02
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -666,14 +666,14 @@ File: winter_storm-1-12-2021_files/figure-latex/unnamed-chunk-1-1.pdf Graphic f
 ile (type pdf)
 <use winter_storm-1-12-2021_files/figure-latex/unnamed-chunk-1-1.pdf>
 Package pdftex.def Info: winter_storm-1-12-2021_files/figure-latex/unnamed-chun
-k-1-1.pdf  used on input line 230.
+k-1-1.pdf  used on input line 232.
 (pdftex.def)             Requested size: 457.72984pt x 316.19493pt.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 269.
+(Font)              <10> on input line 271.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 269.
+(Font)              <7> on input line 271.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 269.
+(Font)              <5> on input line 271.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
@@ -682,16 +682,16 @@ has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.315     T
-           ry calculating statistics over vtl instead of formant measurements <
-./winter_storm-1-12-2021_files/figure-latex/unnamed-chunk-1-1.pdf>] [3pdfTeX wa
-rning (ext4): destination with the same identifier (name{table.1}) has been alr
-eady used, duplicate ignored
+l.313     T
+           ry filtering different age groups in and out <./winter_storm-1-12-20
+21_files/figure-latex/unnamed-chunk-1-1.pdf>] [3pdfTeX warning (ext4): destinat
+ion with the same identifier (name{table.1}) has been already used, duplicate i
+gnored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.399 \end{Shaded}
-                  ]
+l.392 \begin{Shaded}
+                    ]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 474.
 [4]
 Package atveryend Info: Empty hook `AfterLastShipout' on input line 474.
@@ -700,13 +700,13 @@ Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 474.
 Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 474.
  ) 
 Here is how much of TeX's memory you used:
- 15069 strings out of 480608
- 221501 string characters out of 5903631
- 540204 words of memory out of 5000000
- 30574 multiletter control sequences out of 15000+600000
- 590468 words of font info for 97 fonts, out of 8000000 for 9000
+ 15067 strings out of 480608
+ 221298 string characters out of 5903631
+ 539077 words of memory out of 5000000
+ 30572 multiletter control sequences out of 15000+600000
+ 590551 words of font info for 98 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,11n,42p,1296b,427s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 41i,11n,42p,821b,423s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/lo
 cal/texlive/2020/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/20
 20/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</usr/local/texlive/2020/texmf-dist
@@ -720,10 +720,10 @@ mf-dist/fonts/type1/public/lm/lmri10.pfb></usr/local/texlive/2020/texmf-dist/fo
 nts/type1/public/lm/lmtk10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/
 public/lm/lmtt10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/lm/
 lmtti10.pfb>
-Output written on winter_storm-1-12-2021.pdf (4 pages, 286689 bytes).
+Output written on winter_storm-1-12-2021.pdf (4 pages, 285054 bytes).
 PDF statistics:
- 145 PDF objects out of 1000 (max. 8388607)
- 123 compressed objects within 2 object streams
- 25 named destinations out of 1000 (max. 500000)
- 12366 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 139 PDF objects out of 1000 (max. 8388607)
+ 117 compressed objects within 2 object streams
+ 23 named destinations out of 1000 (max. 500000)
+ 12358 words of extra memory for PDF output out of 14400 (max. 10000000)
 

@@ -4,9 +4,9 @@ author: "Meg Cychosz"
 date: "1/12/2021"
 #output: html_document # note that you can also view side-by-side by selecting "preview in viewer"
 #output: word_document # there are lots of options including powerpoint presentations and webpages
-#output: html_notebook
-output: pdf_document
 #output: powerpoint_presentation
+#output: html_notebook # faster to generate; won't produce tables or figures
+output: pdf_document
 # output:
 # bookdown::pdf_document2:
 #   keep_tex: true  # these are my go-to default settings: I don't want a toc, and I want a .tex file generated, in addition to a .pdf
@@ -20,7 +20,7 @@ urlcolor: purple
 # glocal options here
 library('knitr')
 opts_chunk$set(echo = TRUE,
-                      message = FALSE)
+               message = FALSE)
 ```
 
 # Introduction
@@ -54,8 +54,8 @@ Let's get started!
 * Code chunks are where the magic happens
 * They allow you to run little bits of your code instead of entire scripts at once
 * Great for debugging!
-* Chunks are surrounded by ticks ```
-* Give your chunk a name to find easily find it in large scripts
+* Chunks are surrounded by ticks
+* Give your chunk a name to easily find it in large scripts
 * Then you specify some parameters for your chunk
   + the language (R is default; more on this later)
   + do you want warnings? messages? ignore the chunk completely?
@@ -67,7 +67,7 @@ library('dplyr')
 library('ggplot2')
 library('kableExtra')
 library('lme4')
-library('webshot')
+library('webshot') # to render html output in word docs and powerpoints
 webshot::install_phantomjs()
 ```
 
@@ -81,6 +81,7 @@ data <- read.csv('formants_vtlength.csv')
 
 data %>%
   distinct(spkr, .keep_all = T) %>%
+  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
   ggplot(., aes(age_yrs, vtl)) + 
   geom_violin(aes(color = age_yrs)) +
   geom_jitter(alpha=.5, aes(color=age_yrs)) + 
@@ -98,7 +99,7 @@ data %>%
 ## Plots and Tables
 
 * You can generate nice tables and plots in your report
-* By saving the file as .tex or .doc, you have an editable table to import into your paper
+* By generating a .tex or .doc file from your markdown, you have an editable table to import into your paper
   + No more copying and pasting into .tex and Word tables
   + Or, better yet, write your whole paper in RMarkdown!
   + A separate directory containing your figures is also generated
@@ -116,6 +117,7 @@ data %>%
   mutate(F1_stats=paste(round(median_F1,2),"(",round(sd_F1,0),")"),
          F2_stats=paste(round(median_F2,2),"(",round(sd_F2,0),")")) %>%
   select(age_yrs, F1_stats, F2_stats) %>%
+
 kable(., 
       caption = 'Formant frequency measurements by participant age', # we can add a caption!
       #digits=2, # if your columns are still numeric, you can round here
@@ -185,7 +187,7 @@ young_children <- data %>%
   filter(age_yrs=='4' | age_yrs=='5')
 ```
 
-One of the best features of RMarkdown is dynamic coding. Essentially, you include tiny little chunks of code in your prose. For example, you may want to reference descriptive statistics or model summary statistics. You surround each in-line chunk with backwards apostrophes and specify the language. You could write up the results saying that the average value of the first formant in the four- and five-year-olds is `r round(mean(young_children$f1_midpt_med_clean,na.rm=T),2)`. Or maybe you just want to report that there are n=`r young_children %>% distinct(spkr, .keep.all=T) %>% NROW()` four- and five-year-olds in the study. You can also cross-reference figures and tables within your in-line code.
+One of the best features of RMarkdown is dynamic coding. Essentially, you include tiny little chunks of code in your prose. For example, you may want to reference descriptive statistics or model summary statistics. You surround each in-line chunk with backwards ticks and specify the language. You could write up the results saying that the average value of the first formant in the four- and five-year-olds is `r round(mean(young_children$f1_midpt_med_clean,na.rm=T),2)`. Or maybe you just want to report that there are n=`r young_children %>% distinct(spkr, .keep.all=T) %>% NROW()` four- and five-year-olds in the study. You can also cross-reference figures and tables within your in-line code.
 
 ```{r, some basic stats}
 # let's correlate some vocal tract length with age
@@ -196,7 +198,7 @@ vtl_cor <- data %>% # this produces an object;
   summarize(., cor(age_yrs, vtl))
 ```
 
-You could also reference components of your statistical tests like reporting that there is a positive correlation between age and vocal tract length (whew, sanity check!) (r=`r round(vtl_cor[,1],2)`). This means that even if (ahem) forget a participant or two in your first analysis, you don't have to rewrite your entire results section to include the new participants. It's updated automatically every time you compile your script. 
+You could also reference components of your statistical tests like reporting that there is a positive correlation between age and vocal tract length (whew, sanity check!) (r=`r round(vtl_cor[,1],2)`). This means that even if (ahem) you forget a participant or two in your first analysis, you don't have to rewrite your entire results section to include the new participants. It's updated automatically every time you compile your script. 
 
 ```{r, some more complicated things}
 # fit a model and create an object containing its summary
@@ -211,18 +213,18 @@ You can also create and reference model fit summaries. For example, with the obj
 
 # Integrating other languages
 
-Finally, you have the option to sew snippets of code from other languages right into your script! Even if you're not super familiar with shell scripting or Python, this could still be helpful. Imagine that a colleague sends you a Python script, or you find a few lines of a shell code online. Now instead of translating it into R, you could copy it verbatim. 
+Finally, you have the option to sew snippets of code from other languages right into your script! Even if you're not super familiar with shell scripting or Python, this could still be helpful. Imagine that a colleague sends you a Python script, or you find a few lines of Shell code online. Now instead of translating it into R, you could copy it verbatim. 
 
 Let's look at a bash example because Shell scripts are often simple, short, and easily found on the internet. We're going to trim an audio file of an Outkast song.
 ```{bash, a bash example}
 # in your terminal below, you will need to install 'sox' in order to run this line of code
-# either 'brew install sox' or 'pip install sox'
+# either 'brew install sox' or 'pip install sox' (only if you've already install homebrew)
 sox audio_file.mp3 chopped_file.mp3 trim 30
 ```
 
 Why might you want to include snippets of code from other languages in your .Rmd file instead of just saving them as extra scripts? 1) Keeping them all in one place helps you stay organized. 2) When you find a bug in your code, you just have one script to re-run, instead of multiple, leading to fewer human errors. 
 
-You could also execute python code, which requires a bit more finagling. Sewing python requires install of 'reticulate', in addition to setting the python environment, and python modules (see below)
+You could also execute python code, which requires a bit more finagling. Sewing Python requires install of 'reticulate', in addition to setting the Python environment, and Python modules (see below)
 ```{r, load the requisite packages, message=FALSE}
 library(reticulate) # note: you do NOT want to run reticulate via r-miniconda; do not install it when prompted! major conflicts with python modules
 use_python("/usr/bin/python")
