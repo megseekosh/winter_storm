@@ -3,9 +3,10 @@ title: "Winter storm Rmarkdown session"
 author: "Meg Cychosz"
 date: "1/12/2021"
 #output: html_document # note that you can also view side-by-side by selecting "preview in viewer"
-output: word_document # there are lots of options including powerpoint presentations and webpages
+#output: word_document # there are lots of options including powerpoint presentations and webpages
 #output: html_notebook
-#output: pdf_document
+output: pdf_document
+#output: powerpoint_presentation
 # output:
 # bookdown::pdf_document2:
 #   keep_tex: true  # these are my go-to default settings: I don't want a toc, and I want a .tex file generated, in addition to a .pdf
@@ -227,5 +228,5 @@ library(reticulate) # note: you do NOT want to run reticulate via r-miniconda; d
 use_python("/usr/bin/python")
 ```
 
-# Then you can execute your Python code chunks and can easily switch back to R syntax once you've finished.
+Then you can execute your Python code chunks and can easily switch back to R syntax once you've finished.
 
