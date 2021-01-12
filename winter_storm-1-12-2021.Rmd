@@ -3,7 +3,7 @@ title: "Winter storm Rmarkdown session"
 author: "Meg Cychosz"
 date: "1/12/2021"
 #output: html_document # note that you can also view side-by-side by selecting "preview in viewer"
-#output: word_document # there are lots of options including powerpoint presentations and webpages
+output: word_document # there are lots of options including powerpoint presentations and webpages
 #output: html_notebook
 #output: pdf_document
 # output:
@@ -11,6 +11,7 @@ date: "1/12/2021"
 #   keep_tex: true  # these are my go-to default settings: I don't want a toc, and I want a .tex file generated, in addition to a .pdf
 #   toc: False
 # indent: true # option to indent paragraphs
+always_allow_html: true
 urlcolor: purple
 ---
 
@@ -65,6 +66,8 @@ library('dplyr')
 library('ggplot2')
 library('kableExtra')
 library('lme4')
+library('webshot')
+webshot::install_phantomjs()
 ```
 
 ```{r, ignore=FALSE, echo=FALSE, fig.cap="Vocal tract length as a function of participant age"}
@@ -210,19 +213,19 @@ You can also create and reference model fit summaries. For example, with the obj
 Finally, you have the option to sew snippets of code from other languages right into your script! Even if you're not super familiar with shell scripting or Python, this could still be helpful. Imagine that a colleague sends you a Python script, or you find a few lines of a shell code online. Now instead of translating it into R, you could copy it verbatim. 
 
 Let's look at a bash example because Shell scripts are often simple, short, and easily found on the internet. We're going to trim an audio file of an Outkast song.
-#```{bash, a bash example}
+```{bash, a bash example}
 # in your terminal below, you will need to install 'sox' in order to run this line of code
 # either 'brew install sox' or 'pip install sox'
 sox audio_file.mp3 chopped_file.mp3 trim 30
-#```
+```
 
 Why might you want to include snippets of code from other languages in your .Rmd file instead of just saving them as extra scripts? 1) Keeping them all in one place helps you stay organized. 2) When you find a bug in your code, you just have one script to re-run, instead of multiple, leading to fewer human errors. 
 
 You could also execute python code, which requires a bit more finagling. Sewing python requires install of 'reticulate', in addition to setting the python environment, and python modules (see below)
-#```{r, load the requisite packages, message=FALSE}
+```{r, load the requisite packages, message=FALSE}
 library(reticulate) # note: you do NOT want to run reticulate via r-miniconda; do not install it when prompted! major conflicts with python modules
 use_python("/usr/bin/python")
-#```
+```
 
 # Then you can execute your Python code chunks and can easily switch back to R syntax once you've finished.
 
