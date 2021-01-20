@@ -7,8 +7,8 @@ date: "1/12/2021"
 #output: powerpoint_presentation
 #output: html_notebook # faster to generate; won't produce tables or figures
 output: pdf_document
-# output:
-# bookdown::pdf_document2:
+#  output:
+#  bookdown::pdf_document2:
 #   keep_tex: true  # these are my go-to default settings: I don't want a toc, and I want a .tex file generated, in addition to a .pdf
 #   toc: False
 # indent: true # option to indent paragraphs
@@ -22,6 +22,8 @@ library('knitr')
 opts_chunk$set(echo = TRUE,
                message = FALSE)
 ```
+
+
 
 # Introduction
 
@@ -123,21 +125,21 @@ kable(.,
       #digits=2, # if your columns are still numeric, you can round here
       booktabs=T, 
       row.names = FALSE,
-      col.names = c("Age", "F1 mean (SD)", "F2 mean (SD)")) %>%
+      col.names = c("Age", "F1 mean (SD)", "F2 mean (SD) making this name really really really long")) %>%
   column_spec(1, width = "4cm") %>% # we can specify the column widths!
   column_spec(2, width = "5cm") %>%
   column_spec(3, width = "5cm") %>%
   
-  #kable_minimal() %>% # we can play with different table styles!
-  #kable_styling(bootstrap_options = c("striped", "hover"))
+  #kable_minimal() #%>% # we can play with different table styles!
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
   #kable_styling(full_width=F, position = "right") # change the position of the table in our output
   #kable_material("striped") # add striped rows
-  kable_styling(latex_options = "hold_position") #%>%
+  #kable_styling(latex_options = "hold_position") #%>%
   
- # add_header_above(c(" " = 1, "F1" = 1, "F2" = 1)) %>% # add a vector to specify a header for additional information
+  add_header_above(c(" " = 1, "F1" = 1, "F2" = 1)) %>% # add a vector to specify a header for additional information
 
-  #pack_rows("Little kids", 1,3) %>% # organize your rows
-  #pack_rows("Older kids", 4,6)  
+  pack_rows("Little kids", 1,3) %>% # organize your rows
+  pack_rows("Older kids", 4,6)  
     # it's unlikely (and not great practice) that you would add color to your tables but that's an option as well
   
 
@@ -187,7 +189,7 @@ young_children <- data %>%
   filter(age_yrs=='4' | age_yrs=='5')
 ```
 
-One of the best features of RMarkdown is dynamic coding. Essentially, you include tiny little chunks of code in your prose. For example, you may want to reference descriptive statistics or model summary statistics. You surround each in-line chunk with backwards ticks and specify the language. You could write up the results saying that the average value of the first formant in the four- and five-year-olds is `r round(mean(young_children$f1_midpt_med_clean,na.rm=T),2)`. Or maybe you just want to report that there are n=`r young_children %>% distinct(spkr, .keep.all=T) %>% NROW()` four- and five-year-olds in the study. You can also cross-reference figures and tables within your in-line code.
+One of the best features of RMarkdown is dynamic coding. Essentially, you include tiny little chunks of code in your prose. For example, you may want to reference descriptive statistics or model summary statistics. You surround each in-line chunk with backwards ticks and specify the language. You could write up the results saying that the average value of the first formant in the four- and five-year-olds is `r round(mean(young_children$f1_midpt_med_clean,na.rm=T),2)`. Or maybe you just want to report that there are n=`r young_children %>% distinct(spkr, .keep.all=T) %>% NROW()` four- and five-year-olds in the study. You can also cross-reference figures and tables within your in-line code.  
 
 ```{r, some basic stats}
 # let's correlate some vocal tract length with age
@@ -209,7 +211,7 @@ vtl_model <- data %>%
   summary()
 ```
 
-You can also create and reference model fit summaries. For example, with the object you created above, you can can report that there is a negative relationship between child age and the frequency of the first formant ($\beta$=`r round(vtl_model$coefficients[,1][2],2)`, t=`r  round(vtl_model$coefficients[,3][2],2)`). 
+You can also create and reference model fit summaries. For example, with the object you created above, you can can report that there is a negative relationship between child age and the frequency of the first formant ($\beta$=`r round(vtl_model$coefficients[,1][2],2)`, t=`r round(vtl_model$coefficients[,3][2],2)`). 
 
 # Integrating other languages
 
