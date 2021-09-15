@@ -1,0 +1,267 @@
+---
+title: "Ggplot2 and data visualization tutorial"
+author: "Meg Cychosz"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output: 
+  bookdown::pdf_document2:
+    keep_tex: true
+    toc: False
+indent: true
+---
+
+```{r, load libraries}
+library('ggplot2')
+library('dplyr')
+library('knitr')
+```
+
+
+```{r setup, include=FALSE}
+opts_chunk$set(message=FALSE, 
+                      warning=FALSE,
+                      echo=TRUE)
+```
+
+# GGplot2 and data visualization tutorial
+
+Why data visualization? 
+* Essential first step in data exploration and analysis
+* Facilitates explanation of your results, including complex models with multiple interactions
+* Additional sanity check for you, allowing you to identify bugs in your code that might otherwise go unnoticed
+
+Why ggplot?
+* Produces elegant, professional graphics that few other packages can rival
+* Layered approach to plot construction is intuitive 
+* Almost innumerable options for visualization including incorporating statistics and making plots grayscale-friendly
+
+Let's get started!
+
+```{r, read in data}
+# we're gong to play with formants and vocal tract data again today
+vtl_data <- read.csv('vtl_data.csv')
+```
+
+```{r}
+# let's make our first plot!
+ggplot(data=vtl_data) + # we start with a ggplot object: ggplot()
+  geom_point(mapping = aes(x = age_yrs, y = vtl)) # to our ggplot() object, we add "layers"; in this case, we want to add the geom function 'geom_point' or a point plot
+```
+So there's a positive relationship between age and vocal tract length
+
+What are some ways that we could make this graph better?
+You may notice that there are some outliers on our graph. Could adding additional info to the graph help us identify the cause of those?
+```{r, additional variables}
+# let's add a third variable to our plot: gender
+ggplot(data=vtl_data) + 
+  geom_point(mapping = aes(x = age_yrs, y=vtl, color=gender)) 
+```
+Ah, so there are separate effects of age and gender on vocal tract length, especially for the older children!
+And we know this because we *mapped* a third variable to an aesthetic in our plot (we assigned the variable in 'aes()')
+
+```{r, additional variables2}
+# try another aesthetic, and try combining multiple aesthetics
+ggplot(data=vtl_data) + 
+  geom_point(mapping = aes(x = age_yrs, y=vtl, shape=gender, color=gender)) 
+```
+
+
+Remember that there is a difference between information within and outside of 'aes()'
+The following graph assigns color but it's *outside* of 'aes()' and isn't assigned to a variable
+```{r}
+ggplot(data=vtl_data) + 
+  geom_point(mapping = aes(x = age_yrs, y=vtl, shape=gender), color='purple') 
+```
+Our plots above were...ugly. How can we make them nicer?
+Little by little, we're going to add layers to the code for the plot to improve its appearance
+Notice that each new layer is added with a '+'
+
+```{r, making plots that are pleasing to the eye}
+vtl_data %>%
+  distinct(spkr, .keep_all = T) %>%
+  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+
+ggplot(data=., aes(x=age_yrs, y=vtl)) + # notice that I'm now mapping my "main" variables at the beginning of my plot
+  
+ geom_boxplot(outlier.shape=NA,colour='gray') + # note that we will add points on *top* of the boxplots
+  
+ geom_jitter(aes(color=gender, shape=gender, width = .1), alpha=0.5, size=2) + # geom point was nice but I'd like to be able to see the individual points
+                                                                                  # lots of options to manipulate the size, spacing, and color of points
+                                                                                  # what happens when you move alpha and size inside of 'aes()'?
+     
+
+  scale_color_manual(values = c('slateblue3', 'tomato3')) + # R has default colors but you can specify your own which will map to the "color" variable you specified
+  
+  
+  coord_flip() + # I think it would be kind of fun if these actually looked like vocal tracts
+  
+  labs(y="Vocal tract length", x="Age (years)", # give the axes difference names
+       title = "The relationship between vocal tract length \n and age in children and adults", # add an informative title
+       caption = "No adult males were studied.") + # explain some components of your graph
+
+  theme(legend.position = "bottom", # move the legend since it's wasting space on the side of the graph
+  axis.text.x = element_text(face="bold", size=10), # change the size and appearance of text in the plot
+  axis.text.y = element_text(face="bold", size=10),
+  axis.title=element_text(size=16),
+  plot.caption = element_text(size=9),
+  title=element_text(face="bold", size=16))
+```
+A good practice in data visualization is to plot your raw data points in *addition* to summary statistics (like box and whiskers or regression lines)
+Look at the graph above and see how much informative it is with the data points that it is without (comment out geom_jitter)
+
+# Interactions
+
+One of the best uses of data visualization is to help you interpret interactions
+3+-way interactions are difficult to wrap our minds around; plotting data can help!
+
+Do male children have longer vocal tracts (or lower resonances) across all age groups?
+```{r}
+vtl_data %>%
+  distinct(spkr, .keep_all = T) %>%
+  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+  filter(age_yrs!='adult') %>%
+
+ggplot(data=., aes(x=gender, y=vtl)) + 
+  
+  geom_boxplot(outlier.shape=NA,colour='gray') +  
+
+  geom_jitter(aes(color=gender, shape=gender, width = .05), alpha=0.75, size=2) + 
+  
+  scale_color_manual(values = c('slateblue3', 'tomato3')) + 
+  
+  facet_wrap(~age_yrs, ncol=4, scales='free') + # what happens when you change the ncol? set the scales differently?
+  #facet_grid(~age_yrs) +# what's the difference between facet wrap and facet grid? 
+  
+  labs(y="Vocal tract length", x="Age (years)", # these are nearly the same settings as above
+       title = "The relationship between vocal tract length \n and age in children and adults", 
+       caption = "No adult males were studied.") + 
+
+  theme(legend.position = "bottom", 
+  axis.text.x = element_text(face="bold", size=8), 
+  axis.text.y = element_text(face="bold", size=8),
+  axis.title=element_text(size=16),
+  plot.caption = element_text(size=9),
+  title=element_text(face="bold", size=16))
+```
+
+# Continuous Variables
+
+Continuous variables are plotted similarly to our discrete variables (age and gender) above, but with different geom objects
+Are vocal tract length and the difference between formants (deltaf) positively correlated? in all age groups? all genders studied?
+```{r}
+vtl_data %>%
+  distinct(spkr, .keep_all = T) %>%
+  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+
+ggplot(data=., mapping = aes(x=deltaf, y=vtl)) + # again, now we don't have to specify in every geom object
+  
+  geom_smooth(method="loess", color="gray20") +  # we have a new geom object here; what happens when you change the method?
+
+  geom_jitter(aes(color=gender),alpha=0.5, size=4)   # we're still going to plot the raw data; that's usually important, at least for exploration!
+                                                          # I still map my variables here, even though I did it in the previous geom object as well
+          
+```
+
+# Statistical transformations
+
+Histograms are probably one of the first stops on the data exploration train
+But unlike the plots we created above, you have to conduct some summary statistics to create them
+First let's look at a categorical "histogram"
+
+How many children are there in each group? How many boys and how many girls?
+```{r, basic summary statistics}
+vtl_data %>%
+  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+  filter(age_yrs!='adult') %>%
+  group_by(age_yrs,gender) %>%
+  distinct(spkr, .keep_all = T) %>%  
+  count() %>%  # one useful function for summarizing data is 'count'
+
+ggplot(., aes(age_yrs, n, fill=gender)) + 
+  
+  geom_col(aes(fill = gender)) +
+ 
+ geom_text(aes(label = n), position=position_stack(0.5), size = 8) +
+        
+ labs(y="Number of children", x="Age (years)", # these are nearly the same settings as above
+       title = "Number of children studied, \n by age and gender") +  
+
+  theme(axis.text.x = element_text(face="bold", size=8), 
+  axis.text.y = element_text(face="bold", size=8),
+  axis.title=element_text(size=16),
+  plot.caption = element_text(size=9),
+  title=element_text(face="bold", size=16))
+```
+
+To identify whacky outliers, or do sanity checks on your data, density plots of (like histograms for continuous variables) can be useful
+In the graph below, we know the approximate range of the first formant frequency for children aged 4-6
+How much of our data falls out of the expected range?
+```{r, intermediate summary statistics}
+  # vtl_data %>%
+  #   mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+  #   filter(age_yrs!='adult') %>%
+  #   group_by(age_yrs,gender) %>%
+  #   distinct(spkr, .keep_all = T) %>%  
+  #   count() %>%  # one useful function for summarizing data is 'count'
+  # 
+  # ggplot(., aes(age_yrs, n, fill=gender)) + 
+  #   geom_col(aes(fill = gender)) +
+  #  
+  #  geom_text(aes(label = n), position=position_stack(0.5), size = 5) +
+  #         
+  #  labs(y="Number of children", x="Age (years)", # these are nearly the same settings as above
+  #        title = "Number of children studied, \n by age and gender") +  
+  # 
+  #   theme(axis.text.x = element_text(face="bold", size=8), 
+  #   axis.text.y = element_text(face="bold", size=8),
+  #   axis.title=element_text(size=16),
+  #   plot.caption = element_text(size=9),
+  #   title=element_text(face="bold", size=16))
+  # 
+
+
+hist_plot_data <- vtl_data %>%
+  filter(age_yrs=='4' | age_yrs=='5' | age_yrs=='6') %>%
+  gather("formant", "frequency", f1_midpt_med_clean, f2_midpt_med_clean) %>%
+  mutate(formant=recode(formant,"f1_midpt_med_clean"="F1", "f2_midpt_med_clean"="F2")) %>%
+  
+  group_by(age_yrs,formant) %>% # calculate some summary statistics
+  mutate(mean_frequency=mean(frequency,na.rm=T))
+  
+
+hist_plot <-  
+  
+  ggplot(hist_plot_data, aes(x=frequency, fill=formant)) + # note the absence of a variable mapped to 'y'
+  
+  geom_density(alpha=.25) + # what happens when we plot geom_histogram instead?
+  
+  scale_fill_manual(values=c("lightskyblue", "#CC99FF")) +
+  
+  facet_wrap(~age_yrs, scales="fixed") +
+  
+  geom_vline(aes(xintercept=mean_frequency),color="black",linetype="dashed", size=.5) + # we could plot the means
+  
+  xlab("Formant frequency (Hz)") +
+  ylab("Density") +
+  
+  theme(axis.text=element_text(size=8),
+      axis.title=element_text(size=17,face="bold"),
+      strip.text.x = element_text(size=13,face="bold"),
+      legend.position = c(.6,.87),
+      legend.background = element_rect(fill="transparent", 
+                                       size=0.5, linetype="solid"))
+
+hist_plot +
+    hist_plot_data %>%
+    distinct(mean_frequency, .keep_all = T) %>%
+    geom_text(data = ., aes(x = mean_frequency, y = 0.0010, id = age_yrs, label=round(mean_frequency,2)), size = 4, hjust = -.1)
+```
+
+
+
+
+
+
+
+
+
+
