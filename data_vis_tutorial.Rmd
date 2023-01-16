@@ -44,7 +44,7 @@ vtl_data <- read.csv('vtl_data.csv')
 ```{r}
 # let's make our first plot!
 ggplot(data=vtl_data) + # we start with a ggplot object: ggplot()
-  geom_point(mapping = aes(x = age_yrs, y=vtl)) # to our ggplot() object, we add "layers"; in this case, we want to add the geom function 'geom_point' or a point plot
+  geom_point(mapping = aes(x = age_yrs, y = vtl)) # to our ggplot() object, we add "layers"; in this case, we want to add the geom function 'geom_point' or a point plot
 ```
 So there's a positive relationship between age and vocal tract length
 
@@ -69,7 +69,7 @@ Remember that there is a difference between information within and outside of 'a
 The following graph assigns color but it's *outside* of 'aes()' and isn't assigned to a variable
 ```{r}
 ggplot(data=vtl_data) + 
-  geom_point(mapping = aes(x = age_yrs, y=vtl, shape=gender), color='green') 
+  geom_point(mapping = aes(x = age_yrs, y=vtl, shape=gender), color='purple') 
 ```
 Our plots above were...ugly. How can we make them nicer?
 Little by little, we're going to add layers to the code for the plot to improve its appearance
@@ -82,12 +82,13 @@ vtl_data %>%
 
 ggplot(data=., aes(x=age_yrs, y=vtl)) + # notice that I'm now mapping my "main" variables at the beginning of my plot
   
-  geom_boxplot(outlier.shape=NA,colour='gray') +  # note that we will add points on *top* of the boxplots
-
-  geom_jitter(aes(color=gender, shape=gender, width = .05), alpha=0.75, size=2) + # geom point was nice but I'd like to be able to see the individual points
+ geom_boxplot(outlier.shape=NA,colour='gray') + # note that we will add points on *top* of the boxplots
+  
+ geom_jitter(aes(color=gender, shape=gender, width = .1), alpha=0.5, size=2) + # geom point was nice but I'd like to be able to see the individual points
                                                                                   # lots of options to manipulate the size, spacing, and color of points
                                                                                   # what happens when you move alpha and size inside of 'aes()'?
-  
+     
+
   scale_color_manual(values = c('slateblue3', 'tomato3')) + # R has default colors but you can specify your own which will map to the "color" variable you specified
   
   
@@ -153,7 +154,7 @@ vtl_data %>%
 
 ggplot(data=., mapping = aes(x=deltaf, y=vtl)) + # again, now we don't have to specify in every geom object
   
-  geom_smooth(method="lm", color="gray55") +  # we have a new geom object here; what happens when you change the method?
+  geom_smooth(method="loess", color="gray20") +  # we have a new geom object here; what happens when you change the method?
 
   geom_jitter(aes(color=gender),alpha=0.5, size=4)   # we're still going to plot the raw data; that's usually important, at least for exploration!
                                                           # I still map my variables here, even though I did it in the previous geom object as well
@@ -168,7 +169,7 @@ First let's look at a categorical "histogram"
 
 How many children are there in each group? How many boys and how many girls?
 ```{r, basic summary statistics}
-  vtl_data %>%
+vtl_data %>%
   mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
   filter(age_yrs!='adult') %>%
   group_by(age_yrs,gender) %>%
@@ -176,9 +177,10 @@ How many children are there in each group? How many boys and how many girls?
   count() %>%  # one useful function for summarizing data is 'count'
 
 ggplot(., aes(age_yrs, n, fill=gender)) + 
+  
   geom_col(aes(fill = gender)) +
  
- geom_text(aes(label = n), position=position_stack(0.5), size = 5) +
+ geom_text(aes(label = n), position=position_stack(0.5), size = 8) +
         
  labs(y="Number of children", x="Age (years)", # these are nearly the same settings as above
        title = "Number of children studied, \n by age and gender") +  
@@ -194,27 +196,27 @@ To identify whacky outliers, or do sanity checks on your data, density plots of 
 In the graph below, we know the approximate range of the first formant frequency for children aged 4-6
 How much of our data falls out of the expected range?
 ```{r, intermediate summary statistics}
-  vtl_data %>%
-  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
-  filter(age_yrs!='adult') %>%
-  group_by(age_yrs,gender) %>%
-  distinct(spkr, .keep_all = T) %>%  
-  count() %>%  # one useful function for summarizing data is 'count'
-
-ggplot(., aes(age_yrs, n, fill=gender)) + 
-  geom_col(aes(fill = gender)) +
- 
- geom_text(aes(label = n), position=position_stack(0.5), size = 5) +
-        
- labs(y="Number of children", x="Age (years)", # these are nearly the same settings as above
-       title = "Number of children studied, \n by age and gender") +  
-
-  theme(axis.text.x = element_text(face="bold", size=8), 
-  axis.text.y = element_text(face="bold", size=8),
-  axis.title=element_text(size=16),
-  plot.caption = element_text(size=9),
-  title=element_text(face="bold", size=16))
-
+  # vtl_data %>%
+  #   mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+  #   filter(age_yrs!='adult') %>%
+  #   group_by(age_yrs,gender) %>%
+  #   distinct(spkr, .keep_all = T) %>%  
+  #   count() %>%  # one useful function for summarizing data is 'count'
+  # 
+  # ggplot(., aes(age_yrs, n, fill=gender)) + 
+  #   geom_col(aes(fill = gender)) +
+  #  
+  #  geom_text(aes(label = n), position=position_stack(0.5), size = 5) +
+  #         
+  #  labs(y="Number of children", x="Age (years)", # these are nearly the same settings as above
+  #        title = "Number of children studied, \n by age and gender") +  
+  # 
+  #   theme(axis.text.x = element_text(face="bold", size=8), 
+  #   axis.text.y = element_text(face="bold", size=8),
+  #   axis.title=element_text(size=16),
+  #   plot.caption = element_text(size=9),
+  #   title=element_text(face="bold", size=16))
+  # 
 
 
 hist_plot_data <- vtl_data %>%
@@ -226,14 +228,17 @@ hist_plot_data <- vtl_data %>%
   mutate(mean_frequency=mean(frequency,na.rm=T))
   
 
-hist_plot <-  ggplot(hist_plot_data, aes(x=frequency, fill=formant)) + # note the absence of a variable mapped to 'y'
+hist_plot <-  
   
-  geom_density(alpha=.75) + # what happens when we plot geom_histogram instead?
+  ggplot(hist_plot_data, aes(x=frequency, fill=formant)) + # note the absence of a variable mapped to 'y'
+  
+  geom_density(alpha=.25) + # what happens when we plot geom_histogram instead?
+  
   scale_fill_manual(values=c("lightskyblue", "#CC99FF")) +
   
   facet_wrap(~age_yrs, scales="fixed") +
   
-  geom_vline(aes(xintercept=mean_frequency),color="black", linetype="dashed", size=.5) + # we could plot the means
+  geom_vline(aes(xintercept=mean_frequency),color="black",linetype="dashed", size=.5) + # we could plot the means
   
   xlab("Formant frequency (Hz)") +
   ylab("Density") +
