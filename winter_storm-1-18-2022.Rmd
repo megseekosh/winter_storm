@@ -1,0 +1,316 @@
+---
+title: "Winter storm Rmarkdown session"
+author: "Meg Cychosz"
+date: "1/18/2022"
+#output: html_document # note that you can also view side-by-side by selecting "preview in viewer"
+#output: word_document # there are lots of options including powerpoint presentations and webpages
+#output: powerpoint_presentation
+#output: html_notebook # faster to generate; won't produce tables or figures
+#output: pdf_document
+output:
+  bookdown::pdf_document2:
+   keep_tex: true  # these are my go-to default settings: I don't want a toc, and I want a .tex file generated, in addition to a .pdf
+   toc: False
+indent: true # option to indent paragraphs
+#always_allow_html: true
+#urlcolor: purple
+
+---
+
+```{r setup, include=FALSE}
+# glocal options here
+library('knitr')
+opts_chunk$set(echo = TRUE,
+               message = FALSE)
+```
+
+
+
+# Introduction
+
+There are three components to any RMarkdown file:
+
+* Code chunks where you do the bulk of your data processing
+* Prose to walk the reader through your analyses
+* Header to format your output file
+
+Why RMarkdown?
+
+* Facilitates clean, organized code
+* Allows dynamic prose to accompany your results that updates when analyses change, addtl. data is added, etc.
+* Flexibility in terms of which components of the script are run, saved, or ignored
+* Permits integration of additional computing languages and environments like the command line and Python
+* Generates attractive reports in .tex, .pptx, .pdf, .html, and .docx formats
+
+Let's get started!
+
+# File parameters
+
+* RMarkdown files have a .Rmd extension to differentiate them from traditional R scripts 
+* You can specify several parameters in the header of your file
+  + the output file format
+  + parameters of your output file, like whether or not you want a table of contents
+  + Let's play!
+
+# Code chunks
+
+* Code chunks are where the magic happens
+* They allow you to run little bits of your code instead of entire scripts at once
+* Great for debugging!
+* Chunks are surrounded by ticks
+* Give your chunk a name to easily find it in large scripts
+* Then you specify some parameters for your chunk
+  + the language (R is default; more on this later)
+  + do you want warnings? messages? ignore the chunk completely?
+* Then you run individual chunks by clicking the green button
+```{r load libraries, message=FALSE, warning=FALSE}
+# after this chunk, I don't want messages or warnings displayed
+# what happens if I set message=TRUE?
+library('dplyr')
+library('ggplot2')
+library('kableExtra')
+library('lme4')
+library('stargazer')
+library('webshot') # to render html output in word docs and powerpoints
+webshot::install_phantomjs(force = TRUE)
+```
+
+```{r, ignore=FALSE, echo=FALSE, fig.cap="Vocal tract length as a function of participant age"}
+# I want to see the following plot, but without the code... 
+# ignore means I see the plot without the code
+# for really big datasets, I can cache this chunk too to save computing time
+# for plots, I can add a plot title
+
+data <- read.csv('formants_vtlength.csv')
+
+data %>%
+  distinct(spkr, .keep_all = T) %>%
+  mutate(age_yrs = factor(age_yrs, levels = c("4", "5", "6", "7", "8", "9", "10", "adult"))) %>%
+  ggplot(., aes(age_yrs, vtl)) + 
+  geom_violin(aes(color = age_yrs)) +
+  geom_jitter(alpha=.5, aes(color=age_yrs)) + 
+  theme(axis.text=element_text(size=8),
+        axis.title=element_text(size=12),
+        plot.caption = element_text(size=8),
+        plot.title=element_text(size=15, face="bold")) +
+  ylab("vocal tract length") + 
+  xlab("participant age") 
+  #+ ggtitle("Vocal tract length as a function of participant age")
+```
+
+* If you don't want to specify the same parameters for each chunk, just set them in the global options at the beginning of the file
+
+## Plots and Tables
+
+* You can generate nice tables and plots in your report
+* By generating a .tex or .docx file from your markdown, you have an editable table to import into your paper
+  + No more copying and pasting into .tex and Word tables
+  + Or, better yet, write your whole paper in RMarkdown!
+  + A separate directory containing your figures is also generated
+  + Let's make a table
+  
+```{r, echo=FALSE}
+
+data %>% 
+  group_by(age_yrs) %>%
+  filter(age_yrs!='adult' & age_yrs!='10') %>%
+  summarize(median_F1=median(f1_midpt_med_clean,na.rm = T),
+            median_F2=median(f2_midpt_med_clean,na.rm=T),
+            sd_F1=sd(f1_midpt_med_clean,na.rm=T),
+            sd_F2=sd(f2_midpt_med_clean,na.rm=T)) %>%
+  mutate(F1_stats=paste(round(median_F1,2),"(",round(sd_F1,0),")"),
+         F2_stats=paste(round(median_F2,2),"(",round(sd_F2,0),")")) %>%
+  select(age_yrs, F1_stats, F2_stats) %>%
+
+kable(., 
+      caption = 'Formant frequency measurements by participant age', # we can add a caption!
+      #digits=2, # if your columns are still numeric, you can round here
+      booktabs=T, 
+      row.names = FALSE,
+      col.names = c("Age", "F1 mean (SD)", "F2 mean (SD) making this name really really really long")) %>%
+  column_spec(1, width = "4cm") %>% # we can specify the column widths!
+  column_spec(2, width = "5cm") %>%
+  column_spec(3, width = "5cm") %>%
+  
+  #kable_minimal() #%>% # we can play with different table styles!
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  #kable_styling(full_width=F, position = "right") # change the position of the table in our output
+  #kable_material("striped") # add striped rows
+  #kable_styling(latex_options = "hold_position") #%>%
+  
+  add_header_above(c(" " = 1, "F1" = 1, "F2" = 1)) %>% # add a vector to specify a header for additional information
+
+  pack_rows("Little kids", 1,3) %>% # organize your rows
+  pack_rows("Older kids", 4,6)  
+    # it's unlikely (and not great practice) that you would add color to your tables but that's an option as well
+  
+
+
+```
+
+* There are tons of styling options to ready your table for publication/submission
+  + kable is a powerful library to generate tables
+  + Specify the column widths
+  + Add a caption
+  + Change the table style
+  + Add a header above
+  + Group rows together
+
+* Now you try! Play around with the data entered into the table:
+  + Try filtering different age groups in and out
+  + Try calculating different summary statistics (mean, range)
+  + Try calculating statistics over vtl instead of formant measurements
+  
+# Prose
+
+Now that you have plotted some data, conducted summary statistics, and created a table, it's time to write up the results. First let's talk about the basics of Markdown.
+
+## Basics of markdown
+
+* We can make headings of different sizes like we've been doing throughout this document.
+   + Try adding and deleting # from 'Basics of markdown' to watch the font size change
+* We can make bullet lists like the one you're reading right now!
+   + And sublists!
+
+We can write in paragraphs.  
+
+We can write in multiple paragraphs, in fact, just by leaving a line between them in the document and two spaces after the previous line.
+
+We can **emphasize** text while we're writing in *several* different ways that would ***surprise*** you. 
+
+You can also embed links to direct your readers elsewhere like [this one](https://www.markdownguide.org/basic-syntax/). Do you know where you can change the color of your hyperlink?
+
+There are several Markdown cheatsheets available to help you remember this syntax. Try to memorize one new markdown feature each time you sit down to analyze data and you'll have a large repertoire in no time. 
+
+## In-line coding
+
+Now that you know some basics of Markdown, you can write up your results!
+
+```{r, create some analyses to reference}
+young_children <- data %>%
+  filter(age_yrs=='4' | age_yrs=='5')
+```
+
+One of the best features of RMarkdown is dynamic coding. Essentially, you include tiny little chunks of code in your prose. For example, you may want to reference descriptive statistics or model summary statistics. You surround each in-line chunk with backwards ticks and specify the language. You could write up the results saying that the average value of the first formant in the four- and five-year-olds is `r round(mean(young_children$f1_midpt_med_clean,na.rm=T),2)`. Or maybe you just want to report that there are n=`r young_children %>% distinct(spkr, .keep.all=T) %>% NROW()` four- and five-year-olds in the study. You can also cross-reference figures and tables within your in-line code.  
+
+```{r, some basic stats}
+# let's correlate some vocal tract lengths with age
+vtl_cor <- data %>% # this produces an object; 
+  filter(age_yrs!='adult') %>% # we can index the parameters of the statistic in our prose
+  mutate(age_yrs = as.numeric(age_yrs)) %>%
+  distinct(spkr, .keep_all = T) %>%
+  summarize(., cor(age_yrs, vtl))
+```
+
+You could also reference components of your statistical tests like reporting that there is a positive correlation between age and vocal tract length (whew, sanity check!) (r=`r round(vtl_cor[,1],2)`). This means that even if (ahem) you forget a participant or two in your first analysis, or you run more participants, you don't have to rewrite your entire results section to include the new participants. It's updated automatically every time you compile your script. 
+
+```{r, some more complicated things}
+# fit a model and create an object containing its summary
+vtl_model <- data %>%
+  filter(age_yrs!='adult') %>%
+  mutate(age_yrs = as.numeric(age_yrs)) %>% 
+  lmer(f1_midpt_med_clean~age_yrs + (1|spkr), data = .) %>% # using age to predict F1
+  summary()
+```
+
+You can also create and reference model fit summaries. For example, with the object you created above, you can can report that there is a negative relationship between child age and the frequency of the first formant ($\beta$=`r round(vtl_model$coefficients[,1][2],2)`, t=`r round(vtl_model$coefficients[,3][2],2)`). 
+
+# Efficiently reporting on models
+
+Now that you know how to create attractive, interactive tables, and you know how to report statistics in-line, we can bring those skills together to report on a model summary. 
+
+* Try customizing the model summary table
+   + Adding a header
+   + Fitting a model with different predictors
+   + Displaying *multiple* models side-by-side (step-wise modeling)
+   + Knit the whole project together to see what the summary looks like
+
+
+```{r, create model summary table, comment=NA}
+# there are several different packages available to create model summaries
+# we'll use Stargazer
+
+# first, get the data in order and fit a model
+model_fit <- data %>%
+  mutate(age_yrs=factor(age_yrs, ordered = FALSE),
+         age_yrs=relevel(age_yrs, ref='4')) %>%
+  lmer(f2_midpt_med_clean ~ age_yrs + Phone + (1|spkr), data=.)
+
+stargazer(model_fit, 
+            header=FALSE, 
+            dep.var.caption = "", 
+            dep.var.labels.include = FALSE,  
+            type = "latex", # I specify latex because I sew my markdown results into latex for paper submissison
+            star.cutoffs=c(0.05,0.01,0.001), 
+            star.char = c("*", "**", "***"),
+            title="Model predicting F2 by age and phone",  
+            digits = 2, 
+            ci = TRUE, 
+            style = "all",
+            order=c(10,2,3,4,5,6,1,7,8,9), # reorder the parameters of the model
+            covariate.labels = c("Intercept", "5-year-olds", "6-year-olds", "7-year-olds", 
+                                 "8-year-olds", "9-year-olds", "10-year-olds", "Adults", "Phone:i", "Phone:u"))
+
+
+```
+
+```{r, side-by-side models, comment=NA}
+# fit a couple more models and try to display three simultaneously 
+# within minimal space wasted, you can demonstrate how the addition of parameters improves your model fit 
+base_model <- data %>%
+  mutate(age_yrs=factor(age_yrs, ordered = FALSE),
+         age_yrs=relevel(age_yrs, ref='4')) %>%
+  lmer(f2_midpt_med_clean ~ (1|spkr), data=.)
+
+phone_model <- data %>%
+  mutate(age_yrs=factor(age_yrs, ordered = FALSE),
+         age_yrs=relevel(age_yrs, ref='4')) %>%
+  lmer(f2_midpt_med_clean ~ Phone + (1|spkr), data=.)
+
+# an easy way to display multiple models
+# this particular set results in a fair amount of white
+# space because our age variable has so many levels
+# but this is an especially good idea if you have many
+# continuous variables that you fit sequentially
+# in your model and you want to demonstrate your model
+# fitting procedure (in supplementary materials or to
+# show your advisor, for ex.)
+stargazer(base_model, phone_model, model_fit, 
+            header=FALSE, 
+            dep.var.caption = "", 
+            dep.var.labels.include = FALSE,  
+            type = "latex",
+            star.cutoffs=c(0.05,0.01,0.001), 
+            star.char = c("*", "**", "***"),
+            title="Stepwise modeling of F2 by age and phone",  
+            digits = 2, 
+            ci = TRUE, 
+            style = "all",
+            order=c(10,2,3,4,5,6,1,7,8,9), # reorder the parameters of the model
+            covariate.labels = c("Intercept", "5-year-olds", "6-year-olds", "7-year-olds", 
+                                 "8-year-olds", "9-year-olds", "10-year-olds", "Adults", "Phone:i", "Phone:u"))
+
+
+```
+
+# Integrating other languages
+
+Finally, you have the option to sew snippets of code from other languages right into your script! Even if you're not super familiar with shell scripting or Python, this could still be helpful. Imagine that a colleague sends you a Python script, or you find a few lines of Shell code online. Now instead of translating it into R, you could copy it verbatim. 
+
+Let's look at a bash example because Shell scripts are often simple, short, and easily found on the internet. We're going to trim an audio file of an Outkast song.
+```{bash, a bash example, warning=FALSE}
+# in your terminal below, you will need to install 'sox' in order to run this line of code
+# either 'brew install sox' or 'pip install sox' (only if you've already install homebrew)
+sox audio_file.mp3 chopped_file.mp3 trim 30
+```
+
+Why might you want to include snippets of code from other languages in your .Rmd file instead of just saving them as extra scripts? 1) Keeping them all in one place helps you stay organized. 2) When you find a bug in your code, you just have one script to re-run, instead of multiple, leading to fewer human errors. 
+
+You could also execute python code, which requires a bit more finagling. Sewing Python requires install of 'reticulate', in addition to setting the Python environment, and Python modules (see below)
+```{r, load the requisite packages, message=FALSE}
+library(reticulate) # note: you do NOT want to run reticulate via r-miniconda; do not install it when prompted! major conflicts with python modules
+use_python("/usr/bin/python")
+```
+
+Then you can execute your Python code chunks and can easily switch back to R syntax once you've finished.
+
